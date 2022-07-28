@@ -3,6 +3,6 @@ gen:
 clean:
 	rm pb/*.go
 server_start:
-	go run server/main.go
+	go run server/main.go 
 client_start:
-	go run client/main.go
+	go run client/main.go $(arg)

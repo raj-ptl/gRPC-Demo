@@ -20,7 +20,7 @@ type server struct {
 	pb.ReturnIfMaxServiceServer
 }
 
-func (s *server) GetSum(ctx context.Context, req *pb.SumRequest) (*pb.SumResponse, error) {
+func (sv *server) GetSum(ctx context.Context, req *pb.SumRequest) (*pb.SumResponse, error) {
 	res := &pb.SumResponse{
 		SumResult: req.Num_1 + req.Num_2,
 	}
@@ -28,7 +28,7 @@ func (s *server) GetSum(ctx context.Context, req *pb.SumRequest) (*pb.SumRespons
 	return res, nil
 }
 
-func (s *server) GetPrimes(req *pb.GetPrimesRequest, stream pb.GetPrimesService_GetPrimesServer) error {
+func (sv *server) GetPrimes(req *pb.GetPrimesRequest, stream pb.GetPrimesService_GetPrimesServer) error {
 	fmt.Println("Got request for primes till : ", req)
 	primes := helper.Sieve(int(req.Num))
 	for _, p := range primes {
@@ -41,7 +41,7 @@ func (s *server) GetPrimes(req *pb.GetPrimesRequest, stream pb.GetPrimesService_
 	return nil
 }
 
-func (s *server) GetAverage(stream pb.GetAverageService_GetAverageServer) error {
+func (sv *server) GetAverage(stream pb.GetAverageService_GetAverageServer) error {
 	fmt.Println("Got request for calculating avg")
 
 	var cumulativeSum int32
@@ -64,7 +64,7 @@ func (s *server) GetAverage(stream pb.GetAverageService_GetAverageServer) error 
 
 }
 
-func (s *server) ReturnIfMax(stream pb.ReturnIfMaxService_ReturnIfMaxServer) error {
+func (sv *server) ReturnIfMax(stream pb.ReturnIfMaxService_ReturnIfMaxServer) error {
 	fmt.Println("Got request for returning if Max")
 
 	var max int32
