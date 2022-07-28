@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+message ReturnIfMaxRequest {
+    int32 num = 1;
+}
+
+message ReturnIfMaxResponse {
+    int32 maxTillNow = 1;
+}
+
+service ReturnIfMaxService {
+    rpc ReturnIfMax(stream ReturnIfMaxRequest) returns (stream ReturnIfMaxResponse) {}
+}

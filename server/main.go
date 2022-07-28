@@ -17,6 +17,7 @@ type server struct {
 	pb.SumServiceServer
 	pb.GetPrimesServiceServer
 	pb.GetAverageServiceServer
+	pb.ReturnIfMaxServiceServer
 }
 
 func (s *server) GetSum(ctx context.Context, req *pb.SumRequest) (*pb.SumResponse, error) {
@@ -63,17 +64,63 @@ func (s *server) GetAverage(stream pb.GetAverageService_GetAverageServer) error 
 
 }
 
+func (s *server) ReturnIfMax(stream pb.ReturnIfMaxService_ReturnIfMaxServer) error {
+	fmt.Println("Got request for returning if Max")
+
+	var max int32
+	var isMaxInitialized bool = false
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			fmt.Println("Error while reading stream", err)
+			return nil
+		}
+
+		newNum := req.GetNum()
+
+		if !isMaxInitialized {
+			max = newNum
+			isMaxInitialized = true
+			err := stream.Send(&pb.ReturnIfMaxResponse{
+				MaxTillNow: newNum,
+			})
+
+			if err != nil {
+				fmt.Println("Error while sending newnum to stream : ", err)
+				return err
+			}
+		} else {
+			if int32(newNum) > max {
+				max = int32(newNum)
+				err = stream.Send(&pb.ReturnIfMaxResponse{
+					MaxTillNow: max,
+				})
+				if err != nil {
+					fmt.Println("Error while sending newnum to stream : ", err)
+				}
+			}
+		}
+	}
+}
+
 func main() {
-	fmt.Println("Hello World from Server!")
+
 	lis, err := net.Listen("tcp", "127.0.0.1:9091")
 	if err != nil {
 		fmt.Println("Failed to listen : ", err)
 	}
+	fmt.Println("Server started on 127.0.0.1:9091")
 
 	sv := grpc.NewServer()
 	pb.RegisterSumServiceServer(sv, &server{})
 	pb.RegisterGetPrimesServiceServer(sv, &server{})
 	pb.RegisterGetAverageServiceServer(sv, &server{})
+	pb.RegisterReturnIfMaxServiceServer(sv, &server{})
 	reflection.Register(sv)
 	if err := sv.Serve(lis); err != nil {
 		fmt.Println("Failed to serve : ", err)
