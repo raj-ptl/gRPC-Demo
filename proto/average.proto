@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+message GetAverageRequest {
+    int32 num = 1;
+}
+
+message GetAverageResponse {
+    int32 avg = 1;
+}
+
+service GetAverageService {
+    rpc GetAverage(stream GetAverageRequest) returns (GetAverageResponse) {}
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 type server struct {
 	pb.SumServiceServer
 	pb.GetPrimesServiceServer
+	pb.GetAverageServiceServer
 }
 
 func (s *server) GetSum(ctx context.Context, req *pb.SumRequest) (*pb.SumResponse, error) {
@@ -38,6 +40,29 @@ func (s *server) GetPrimes(req *pb.GetPrimesRequest, stream pb.GetPrimesService_
 	return nil
 }
 
+func (s *server) GetAverage(stream pb.GetAverageService_GetAverageServer) error {
+	fmt.Println("Got request for calculating avg")
+
+	var cumulativeSum int32
+	var cumulativeCount int32
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.GetAverageResponse{
+				Avg: cumulativeSum / cumulativeCount,
+			})
+		}
+
+		if err != nil {
+			fmt.Println("Error while stream closure", err)
+		}
+		cumulativeSum += req.Num
+		cumulativeCount++
+	}
+
+}
+
 func main() {
 	fmt.Println("Hello World from Server!")
 	lis, err := net.Listen("tcp", "127.0.0.1:9091")
@@ -48,6 +73,7 @@ func main() {
 	sv := grpc.NewServer()
 	pb.RegisterSumServiceServer(sv, &server{})
 	pb.RegisterGetPrimesServiceServer(sv, &server{})
+	pb.RegisterGetAverageServiceServer(sv, &server{})
 	reflection.Register(sv)
 	if err := sv.Serve(lis); err != nil {
 		fmt.Println("Failed to serve : ", err)
