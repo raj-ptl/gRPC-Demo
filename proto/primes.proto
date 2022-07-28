@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+message GetPrimesRequest {
+    int32 num = 1;
+}
+
+message GetPrimesResponse {
+    int32 num = 1;
+}
+
+service GetPrimesService {
+    rpc GetPrimes(GetPrimesRequest) returns (stream GetPrimesResponse) {}
+}
