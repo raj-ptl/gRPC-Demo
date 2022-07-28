@@ -10,3 +10,7 @@ message SumRequest {
 message SumResponse {
     int32 sum_result = 1;
 }
+
+service SumService {
+    rpc GetSum(SumRequest) returns (SumResponse) {}
+}
