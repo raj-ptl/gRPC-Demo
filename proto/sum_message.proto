@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+message SumRequest {
+    int32 num_1 = 1;
+    int32 num_2 = 2;
+}
+
+message SumResponse {
+    int32 sum_result = 1;
+}
